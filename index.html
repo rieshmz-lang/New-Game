@@ -129,3 +129,24 @@ createBamboo();
 
 </body>
 </html>
+
+<!-- 操作用ボタン -->
+<div id="controls">
+  <button ontouchstart="move(0,-20)">↑</button><br>
+  <button ontouchstart="move(-20,0)">←</button>
+  <button ontouchstart="move(20,0)">→</button><br>
+  <button ontouchstart="move(0,20)">↓</button>
+</div>
+
+<style>
+#controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 5;
+}
+button {
+  font-size: 30px;
+  margin: 5px;
+}
+</style>
