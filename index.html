@@ -3,68 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <title>つつじ畑のタケノコ探し</title>
+
 <style>
-  body { margin: 0; overflow: hidden; }
+body { margin: 0; overflow: hidden; }
 
-  #game {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-  }
+#game {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
 
-  /* 🌺 背景 */
-  #bg {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 0;
-  }
+/* 🌺 背景 */
+#bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
 
-  /* 🌺 つつじ（障害物） */
-  .flower {
-    position: absolute;
-    font-size: 50px;
-    opacity: 0.9;
-    z-index: 1;
-  }
+/* 🌺 つつじ */
+.flower {
+  position: absolute;
+  font-size: 50px;
+  z-index: 2;
+}
 
-  /* 🌰 タケノコ */
-  .bamboo {
-    position: absolute;
-    font-size: 60px;
-    z-index: 2;
-  }
+/* 🌰 タケノコ */
+.bamboo {
+  position: absolute;
+  font-size: 40px;
+  z-index: 1; /* 花より後ろで隠れる */
+}
 
-  /* 🦝 レッサーパンダ */
-  #panda {
-    position: absolute;
-    width: 100px;
-    z-index: 3;
-  }
+/* 🦝 パンダ */
+#panda {
+  position: absolute;
+  width: 100px;
+  z-index: 3;
+}
 
-  #score {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 24px;
-    background: white;
-    padding: 5px 10px;
-    border-radius: 10px;
-    z-index: 4;
-  }
+#score {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 24px;
+  background: white;
+  padding: 5px 10px;
+  border-radius: 10px;
+  z-index: 4;
+}
+
+/* 📱 操作ボタン */
+#controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 5;
+}
+button {
+  font-size: 30px;
+  margin: 5px;
+}
 </style>
 </head>
+
 <body>
 
 <div id="game">
-  <!-- 🌺 背景（好きなURLに変えてOK） -->
+
+  <!-- 🌺 背景 -->
   <img id="bg" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjTh_pzM_BOyT-s53cujXz_ptMBjdnrxhQbWVGx1FExjHCEMJJfe_OgIrmeFW9N3-9ZNO1H6oWrpn4kEoZ-xjzbwI_EqjB36_T0VfsLTnHln6sTdhmLkCk0UtUOKpP_eMM2p2FdfscDpmU/s800/flower_tsutsuji.png">
 
   <div id="score">スコア: 0</div>
 
   <!-- 🦝 -->
   <img id="panda" src="https://upload.wikimedia.org/wikipedia/commons/5/50/RedPandaFullBody.JPG">
+
+</div>
+
+<!-- 📱 操作用ボタン -->
+<div id="controls">
+  <button ontouchstart="move(0,-20)">↑</button><br>
+  <button ontouchstart="move(-20,0)">←</button>
+  <button ontouchstart="move(20,0)">→</button><br>
+  <button ontouchstart="move(0,20)">↓</button>
 </div>
 
 <script>
@@ -79,19 +102,45 @@ let score = 0;
 panda.style.left = x + "px";
 panda.style.top = y + "px";
 
-// 🦝 移動
+// 🎮 キーボード操作
 document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowUp") y -= 20;
-  if (e.key === "ArrowDown") y += 20;
-  if (e.key === "ArrowLeft") x -= 20;
-  if (e.key === "ArrowRight") x += 20;
+  if (e.key === "ArrowUp") move(0,-20);
+  if (e.key === "ArrowDown") move(0,20);
+  if (e.key === "ArrowLeft") move(-20,0);
+  if (e.key === "ArrowRight") move(20,0);
+});
+
+// 📱 スマホ操作
+function move(dx, dy) {
+  x += dx;
+  y += dy;
+
+  // 画面外に行かない
+  x = Math.max(0, Math.min(window.innerWidth - 100, x));
+  y = Math.max(0, Math.min(window.innerHeight - 100, y));
 
   panda.style.left = x + "px";
   panda.style.top = y + "px";
-});
+}
 
+// 🌺 つつじ生成
+function createFlower() {
+  let flower = document.createElement("div");
+  flower.className = "flower";
+  flower.innerText = "🌺";
 
-// 🎍 タケノコ生成（少し隠れる）
+  flower.style.left = Math.random() * (window.innerWidth - 50) + "px";
+  flower.style.top = Math.random() * (window.innerHeight - 50) + "px";
+
+  game.appendChild(flower);
+}
+
+// 最初にたくさん出す
+for (let i = 0; i < 15; i++) {
+  createFlower();
+}
+
+// 🎍 タケノコ生成
 function createBamboo() {
   let bamboo = document.createElement("div");
   bamboo.className = "bamboo";
@@ -109,11 +158,13 @@ function createBamboo() {
     let px = panda.offsetLeft;
     let py = panda.offsetTop;
 
-    if (Math.abs(px - bx) < 100 && Math.abs(py - by) < 100) {
+    // 当たり判定
+    if (Math.abs(px - bx) < 80 && Math.abs(py - by) < 80) {
       bamboo.remove();
       score++;
       scoreDisplay.innerText = "スコア: " + score;
 
+      // 🔊 音
       let audio = new Audio("https://www.soundjay.com/button/sounds/button-09.mp3");
       audio.play();
 
@@ -129,24 +180,3 @@ createBamboo();
 
 </body>
 </html>
-
-<!-- 操作用ボタン -->
-<div id="controls">
-  <button ontouchstart="move(0,-20)">↑</button><br>
-  <button ontouchstart="move(-20,0)">←</button>
-  <button ontouchstart="move(20,0)">→</button><br>
-  <button ontouchstart="move(0,20)">↓</button>
-</div>
-
-<style>
-#controls {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  z-index: 5;
-}
-button {
-  font-size: 30px;
-  margin: 5px;
-}
-</style>
