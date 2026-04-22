@@ -5,7 +5,7 @@
 <title>タップでタケノコ探し</title>
 
 <style>
-body { margin: 0; overflow: hidden; }
+body { margin: 0; overflow: hidden; touch-action: none; }
 
 #game {
   position: relative;
@@ -37,7 +37,7 @@ body { margin: 0; overflow: hidden; }
   position: absolute;
   width: 100px;
   z-index: 3;
-  transition: 0.3s; /* なめらか移動 */
+  transition: 0.2s;
 }
 
 #score {
@@ -75,16 +75,34 @@ let score = 0;
 panda.style.left = x + "px";
 panda.style.top = y + "px";
 
-// 👆 タップで移動
-game.addEventListener("click", (e) => {
-  let rect = game.getBoundingClientRect();
+// 📍 移動処理
+function moveTo(px, py) {
+  x = px - 50;
+  y = py - 50;
 
-  x = e.clientX - 50;
-  y = e.clientY - 50;
+  // 画面外に出ない
+  x = Math.max(0, Math.min(window.innerWidth - 100, x));
+  y = Math.max(0, Math.min(window.innerHeight - 100, y));
 
   panda.style.left = x + "px";
   panda.style.top = y + "px";
+}
+
+// 📱 iPhone・Android
+game.addEventListener("touchstart", (e) => {
+  let touch = e.touches[0];
+  moveTo(touch.clientX, touch.clientY);
 });
+
+// 💻 PC
+game.addEventListener("click", (e) => {
+  moveTo(e.clientX, e.clientY);
+});
+
+// 📱 スクロール防止
+document.body.addEventListener("touchmove", function(e){
+  e.preventDefault();
+}, { passive: false });
 
 // 🌺 つつじ
 function createFlower() {
@@ -134,6 +152,7 @@ function createBamboo() {
   }, 100);
 }
 
+// スタート
 createBamboo();
 </script>
 
