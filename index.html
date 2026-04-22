@@ -13,6 +13,7 @@ body { margin: 0; overflow: hidden; touch-action: none; }
   height: 100vh;
 }
 
+/* 背景 */
 #bg {
   position: absolute;
   width: 100%;
@@ -21,22 +22,18 @@ body { margin: 0; overflow: hidden; touch-action: none; }
   z-index: 0;
 }
 
-.flower {
-  position: absolute;
-  font-size: 50px;
-  z-index: 2;
-}
-
+/* タケノコ（大きく！） */
 .bamboo {
   position: absolute;
-  font-size: 40px;
+  font-size: 80px; /* ←大きくした */
   z-index: 1;
 }
 
+/* パンダ（大きく！） */
 #panda {
   position: absolute;
-  width: 100px;
-  z-index: 3;
+  width: 150px; /* ←大きくした */
+  z-index: 2;
   transition: 0.2s;
 }
 
@@ -44,11 +41,11 @@ body { margin: 0; overflow: hidden; touch-action: none; }
   position: absolute;
   top: 10px;
   left: 10px;
-  font-size: 24px;
+  font-size: 28px;
   background: white;
-  padding: 5px 10px;
+  padding: 8px 12px;
   border-radius: 10px;
-  z-index: 4;
+  z-index: 3;
 }
 </style>
 </head>
@@ -75,52 +72,34 @@ let score = 0;
 panda.style.left = x + "px";
 panda.style.top = y + "px";
 
-// 📍 移動処理
+// 移動
 function moveTo(px, py) {
-  x = px - 50;
-  y = py - 50;
+  x = px - 75; // サイズに合わせて調整
+  y = py - 75;
 
-  // 画面外に出ない
-  x = Math.max(0, Math.min(window.innerWidth - 100, x));
-  y = Math.max(0, Math.min(window.innerHeight - 100, y));
+  x = Math.max(0, Math.min(window.innerWidth - 150, x));
+  y = Math.max(0, Math.min(window.innerHeight - 150, y));
 
   panda.style.left = x + "px";
   panda.style.top = y + "px";
 }
 
-// 📱 iPhone・Android
+// タップ対応
 game.addEventListener("touchstart", (e) => {
   let touch = e.touches[0];
   moveTo(touch.clientX, touch.clientY);
 });
 
-// 💻 PC
 game.addEventListener("click", (e) => {
   moveTo(e.clientX, e.clientY);
 });
 
-// 📱 スクロール防止
+// スクロール防止
 document.body.addEventListener("touchmove", function(e){
   e.preventDefault();
 }, { passive: false });
 
-// 🌺 つつじ
-function createFlower() {
-  let flower = document.createElement("div");
-  flower.className = "flower";
-  flower.innerText = "🌺";
-
-  flower.style.left = Math.random() * (window.innerWidth - 50) + "px";
-  flower.style.top = Math.random() * (window.innerHeight - 50) + "px";
-
-  game.appendChild(flower);
-}
-
-for (let i = 0; i < 15; i++) {
-  createFlower();
-}
-
-// 🎍 タケノコ
+// タケノコ
 function createBamboo() {
   let bamboo = document.createElement("div");
   bamboo.className = "bamboo";
@@ -138,7 +117,7 @@ function createBamboo() {
     let px = panda.offsetLeft;
     let py = panda.offsetTop;
 
-    if (Math.abs(px - bx) < 80 && Math.abs(py - by) < 80) {
+    if (Math.abs(px - bx) < 100 && Math.abs(py - by) < 100) {
       bamboo.remove();
       score++;
       scoreDisplay.innerText = "スコア: " + score;
@@ -152,7 +131,6 @@ function createBamboo() {
   }, 100);
 }
 
-// スタート
 createBamboo();
 </script>
 
