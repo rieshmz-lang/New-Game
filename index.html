@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>つつじ畑のタケノコ探し</title>
+<title>タップでタケノコ探し</title>
 
 <style>
 body { margin: 0; overflow: hidden; }
@@ -13,7 +13,6 @@ body { margin: 0; overflow: hidden; }
   height: 100vh;
 }
 
-/* 🌺 背景 */
 #bg {
   position: absolute;
   width: 100%;
@@ -22,25 +21,23 @@ body { margin: 0; overflow: hidden; }
   z-index: 0;
 }
 
-/* 🌺 つつじ */
 .flower {
   position: absolute;
   font-size: 50px;
   z-index: 2;
 }
 
-/* 🌰 タケノコ */
 .bamboo {
   position: absolute;
   font-size: 40px;
-  z-index: 1; /* 花より後ろで隠れる */
+  z-index: 1;
 }
 
-/* 🦝 パンダ */
 #panda {
   position: absolute;
   width: 100px;
   z-index: 3;
+  transition: 0.3s; /* なめらか移動 */
 }
 
 #score {
@@ -53,41 +50,17 @@ body { margin: 0; overflow: hidden; }
   border-radius: 10px;
   z-index: 4;
 }
-
-/* 📱 操作ボタン */
-#controls {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  z-index: 5;
-}
-button {
-  font-size: 30px;
-  margin: 5px;
-}
 </style>
 </head>
 
 <body>
 
 <div id="game">
-
-  <!-- 🌺 背景 -->
   <img id="bg" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjTh_pzM_BOyT-s53cujXz_ptMBjdnrxhQbWVGx1FExjHCEMJJfe_OgIrmeFW9N3-9ZNO1H6oWrpn4kEoZ-xjzbwI_EqjB36_T0VfsLTnHln6sTdhmLkCk0UtUOKpP_eMM2p2FdfscDpmU/s800/flower_tsutsuji.png">
 
   <div id="score">スコア: 0</div>
 
-  <!-- 🦝 -->
   <img id="panda" src="https://upload.wikimedia.org/wikipedia/commons/5/50/RedPandaFullBody.JPG">
-
-</div>
-
-<!-- 📱 操作用ボタン -->
-<div id="controls">
-  <button ontouchstart="move(0,-20)">↑</button><br>
-  <button ontouchstart="move(-20,0)">←</button>
-  <button ontouchstart="move(20,0)">→</button><br>
-  <button ontouchstart="move(0,20)">↓</button>
 </div>
 
 <script>
@@ -102,28 +75,18 @@ let score = 0;
 panda.style.left = x + "px";
 panda.style.top = y + "px";
 
-// 🎮 キーボード操作
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowUp") move(0,-20);
-  if (e.key === "ArrowDown") move(0,20);
-  if (e.key === "ArrowLeft") move(-20,0);
-  if (e.key === "ArrowRight") move(20,0);
-});
+// 👆 タップで移動
+game.addEventListener("click", (e) => {
+  let rect = game.getBoundingClientRect();
 
-// 📱 スマホ操作
-function move(dx, dy) {
-  x += dx;
-  y += dy;
-
-  // 画面外に行かない
-  x = Math.max(0, Math.min(window.innerWidth - 100, x));
-  y = Math.max(0, Math.min(window.innerHeight - 100, y));
+  x = e.clientX - 50;
+  y = e.clientY - 50;
 
   panda.style.left = x + "px";
   panda.style.top = y + "px";
-}
+});
 
-// 🌺 つつじ生成
+// 🌺 つつじ
 function createFlower() {
   let flower = document.createElement("div");
   flower.className = "flower";
@@ -135,12 +98,11 @@ function createFlower() {
   game.appendChild(flower);
 }
 
-// 最初にたくさん出す
 for (let i = 0; i < 15; i++) {
   createFlower();
 }
 
-// 🎍 タケノコ生成
+// 🎍 タケノコ
 function createBamboo() {
   let bamboo = document.createElement("div");
   bamboo.className = "bamboo";
@@ -158,13 +120,11 @@ function createBamboo() {
     let px = panda.offsetLeft;
     let py = panda.offsetTop;
 
-    // 当たり判定
     if (Math.abs(px - bx) < 80 && Math.abs(py - by) < 80) {
       bamboo.remove();
       score++;
       scoreDisplay.innerText = "スコア: " + score;
 
-      // 🔊 音
       let audio = new Audio("https://www.soundjay.com/button/sounds/button-09.mp3");
       audio.play();
 
@@ -174,7 +134,6 @@ function createBamboo() {
   }, 100);
 }
 
-// スタート
 createBamboo();
 </script>
 
